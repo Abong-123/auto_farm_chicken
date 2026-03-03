@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <meta http-equiv="refresh" content="60"> <!-- auto refresh tiap 60 detik -->
+    <link rel="stylesheet" href="/static/css/style.css">
+    <title>monitoring suhu</title>
+    <meta http-equiv="refresh" content="5">
+
+</head>
+<body>
+    <div class="space-bg"></div>
+
+<div class="container">
+    <h1>🚀 Space Monitoring</h1>
+    <p class="subtitle">Real-time Temperature Sensor</p>
+
+    <div class="card">
+        <h2>📡 Data Monitoring</h2>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Suhu (°C)</th>
+                        <th>Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for d in data %}
+                    <tr>
+                        <td>{{ d.id }}</td>
+                        <td>{{ d.suhu }}</td>
+                        <td class="timestamp" data-time="{{ d.timestamp }}"></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>📊 Grafik Sensor</h2>
+        <canvas id="sensorChart"></canvas>
+    </div>
+</div>
+
+<script>
+    const labels = [
+        {% for d in data %}
+            "{{ d.timestamp.strftime('%H:%M:%S') }}"{% if not loop.last %},{% endif %}
+        {% endfor %}
+    ];
+
+    const suhuData = [
+        {% for d in data %}
+            {{ d.suhu }}{% if not loop.last %},{% endif %}
+        {% endfor %}
+    ];
+
+    const kelembapanData = [
+        {% for d in data %}
+            {{ d.kelembapan }}{% if not loop.last %},{% endif %}
+        {% endfor %}
+    ];
+
+    const ctx = document.getElementById('sensorChart').getContext('2d');
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Suhu (°C)',
+                    data: suhuData,
+                    borderWidth: 2,
+                },
+                {
+                    label: 'Kelembapan (%)',
+                    data: kelembapanData,
+                    borderWidth: 2,
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Waktu (HH:MM:SS)'
+                    }
+                },
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+    // Fungsi untuk mengupdate timestamp
+    document.querySelectorAll(".timestamp").forEach(el => {
+        const date = new Date(el.dataset.time);
+
+        el.textContent = date.toLocaleString("id-ID", {
+            timeZone: "Asia/Jakarta"
+        });
+    });
+
+</script>
+
+
+</body>
+</html>

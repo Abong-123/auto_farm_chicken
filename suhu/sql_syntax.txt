@@ -1,0 +1,65 @@
+-- Buat schema
+CREATE SCHEMA IF NOT EXISTS suhu;
+
+-- Enum role user
+CREATE TYPE public.userrole AS ENUM ('peternak', 'admin');
+
+-- Tabel users (public schema)
+CREATE TABLE IF NOT EXISTS public.users (
+  id          SERIAL PRIMARY KEY,
+  nama        VARCHAR(100) NOT NULL,
+  role        userrole DEFAULT 'peternak',
+  password    VARCHAR(255) NOT NULL,
+  peternakan  VARCHAR(100),
+  created_at  TIMESTAMP DEFAULT NOW()
+);
+
+-- Tabel devices (suhu schema)
+CREATE TABLE IF NOT EXISTS suhu.devices (
+  id         SERIAL PRIMARY KEY,
+  user_id    INTEGER REFERENCES public.users(id) ON DELETE SET NULL,
+  device_id  VARCHAR(50) UNIQUE NOT NULL,
+  lokasi     VARCHAR(100),
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Tabel raw_logs (suhu schema)
+CREATE TABLE IF NOT EXISTS suhu.raw_logs (
+  id               SERIAL PRIMARY KEY,
+  device_id        VARCHAR(50) REFERENCES suhu.devices(device_id) ON DELETE CASCADE,
+  temperature      FLOAT,
+  setpoint         FLOAT,
+  setpoint_source  VARCHAR(20),
+  heater_power     INTEGER,
+  status           VARCHAR(20),
+  condition        VARCHAR(20),
+  timestamp        BIGINT,
+  created_at       TIMESTAMP DEFAULT NOW()
+);
+
+-- Tabel umur_settings (suhu schema)
+CREATE TABLE IF NOT EXISTS suhu.umur_settings (
+  id               SERIAL PRIMARY KEY,
+  device_id        VARCHAR(50) REFERENCES suhu.devices(device_id) ON DELETE CASCADE,
+  umur_minggu      INTEGER NOT NULL,
+  setpoint_target  FLOAT NOT NULL,
+  is_active        BOOLEAN DEFAULT FALSE,
+  activated_at     TIMESTAMP,
+  created_at       TIMESTAMP DEFAULT NOW()
+);
+
+-- Tabel send_logs (suhu schema)
+CREATE TABLE IF NOT EXISTS suhu.send_logs (
+  id                SERIAL PRIMARY KEY,
+  device_id         VARCHAR(50) REFERENCES suhu.devices(device_id) ON DELETE CASCADE,
+  umur_setting_id   INTEGER REFERENCES suhu.umur_settings(id) ON DELETE SET NULL,
+  msg_id            VARCHAR(50) UNIQUE NOT NULL DEFAULT gen_random_uuid()::text,
+  setpoint          FLOAT NOT NULL,
+  umur_minggu       INTEGER NOT NULL,
+  start_timestamp   BIGINT NOT NULL,
+  status            VARCHAR(20) DEFAULT 'pending',
+  trigger           VARCHAR(20) DEFAULT 'manual',
+  sent_at           TIMESTAMP DEFAULT NOW(),
+  acknowledged_at   TIMESTAMP,
+  error_message     TEXT
+);

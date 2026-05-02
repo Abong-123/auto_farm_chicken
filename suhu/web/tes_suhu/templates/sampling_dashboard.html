@@ -1,0 +1,37 @@
+<!-- templates/sampling_dashboard.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard Sampling Suhu</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        h1 { text-align: center; color: #333; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: 20px; }
+        .card { background: white; border-radius: 10px; padding: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .card h3 { margin-top: 0; color: #2c3e50; }
+        img { width: 100%; height: auto; border-radius: 5px; }
+        .summary { background: #2c3e50; color: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; }
+        .best { color: #2ecc71; font-weight: bold; }
+        .warning { color: #f39c12; }
+    </style>
+</head>
+<body>
+    <h1>📊 Dashboard Analisis Sampling Ruangan</h1>
+    <div class="summary">
+        <h3>📋 Ringkasan</h3>
+        <p>✅ <span class="best">Titik Terbaik Global:</span> {{ best_overall.point_id }} pada range waktu {{ best_overall.time_range }}</p>
+        <p>📈 <span class="best">Deviasi Terkecil:</span> {{ "%.2f"|format(best_overall.deviation_from_global) }}°C</p>
+        <p>🎯 <span class="best">Rekomendasi:</span> Pasang sensor di titik {{ best_overall.point_id }} untuk pengukuran representatif</p>
+    </div>
+    <div class="grid">
+        {% for graph in graphs %}
+        <div class="card">
+            <h3>🕐 Range Waktu: {{ graph.time_range }}</h3>
+            <img src="{{ graph.file_url }}" alt="Grafik {{ graph.time_range }}" onerror="this.src='https://via.placeholder.com/500x300?text=Grafik+belum+dibuat'">
+            <p>✅ Titik terbaik: <strong>{{ graph.best_point }}</strong> | Deviasi: {{ "%.2f"|format(graph.best_deviation) }}°C</p>
+            <p>📊 Rata-rata global delta: {{ "%.2f"|format(graph.global_avg) }}°C</p>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>

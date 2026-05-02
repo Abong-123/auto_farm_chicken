@@ -2,6 +2,7 @@
 #include <ESP8266HTTPClient.h> //library http request
 #include <WiFiClient.h> //client TCP/IP
 #include <ArduinoJson.h> //parse Json
+#include <ESP8266WebServer.h>
 #include <DHT.h> // baca dht adafruit dht
 
 // =====================================================
@@ -17,6 +18,7 @@ const char* serverUrl  = "http://10.216.167.77:8000/suhu/device/1"; // endpoint 
 const char* DEVICE_ID  = "kandang_01"; //inisiasi device id
 const int   INTERVAL   = 60000; // kirim tiap 60 detik
 
+ESP8266WebServer server(80);
 // =====================================================
 // STATE LOKAL
 // =====================================================
@@ -43,6 +45,11 @@ void setup() {
     Serial.print(".");
   }
   Serial.println("\nWiFi connected: " + WiFi.localIP().toString());
+
+  // Daftarkan endpoint /command
+  server.on("/command", HTTP_POST, handleCommand);
+  server.begin();
+  Serial.println("HTTP server started");
 }
 
 // =====================================================
@@ -52,6 +59,12 @@ void loop() {
   if (millis() - lastSend >= INTERVAL) {
     lastSend = millis();
     sendData(); //kirim data setip interval ms
+  }
+  server.handleClient();  // tambah ini di loop
+  
+  if (millis() - lastSend >= INTERVAL) {
+    lastSend = millis();
+    sendData();
   }
 }
 
@@ -113,4 +126,40 @@ void sendData() {
   Serial.println("Response: " + response);
 
   http.end();
+}
+
+void handleCommand() {
+  if (!server.hasArg("plain")) {
+    server.send(400, "application/json", "{\"error\":\"no body\"}");
+    return;
+  }
+
+  String body = server.arg("plain");
+  Serial.println("Command diterima: " + body);
+
+  StaticJsonDocument<256> doc;
+  DeserializationError err = deserializeJson(doc, body);
+  if (err) {
+    server.send(400, "application/json", "{\"error\":\"invalid json\"}");
+    return;
+  }
+
+  // Update setpoint dari server
+  setpoint        = doc["setpoint"].as<float>();
+  setpoint_source = "server";
+  String msg_id   = doc["msg_id"].as<String>();
+
+  Serial.println("Setpoint baru: " + String(setpoint));
+  Serial.println("msg_id: " + msg_id);
+
+  // Balas ACK ke server
+  HTTPClient http;
+  WiFiClient client;
+  http.begin(client, "http://10.216.167.77:8000/suhu/ack");
+  http.addHeader("Content-Type", "application/json");
+  String ackJson = "{\"msg_id\":\"" + msg_id + "\",\"status\":\"received\"}";
+  http.POST(ackJson);
+  http.end();
+
+  server.send(200, "application/json", "{\"status\":\"ok\"}");
 }

@@ -1,0 +1,18 @@
+perintah leaf flower( daun dan gambar) baru sampai sini
+
+
+
+  <p>
+                  Lorem ipsum, dolor sit amet consectur adipiscing
+                  elit, Distinctio fuugiat event, reprehenderit
+                  veritatis aut explicabo voluptatum ullam itaque
+                  temetur numquam!
+                </p>
+
+
+
+(disini tutor kasih <p class="text-slate-300 font-lobster">)
+
+
+
+baru sampai ngerubah judul, menit 1 jam 9 menit

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>IoT Kandang Cerdas - Tidak Ada Data</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        /* MAIN CONTENT - margin kiri untuk sidebar desktop */
+        .main-content {
+            margin-left: 260px;
+            min-height: 100vh;
+            transition: margin-left 0.3s ease;
+        }
+        
+        /* MOBILE & TABLET: margin 0, sidebar tersembunyi */
+        @media (max-width: 1024px) {
+            .main-content {
+                margin-left: 0;
+            }
+        }
+        
+        /* IFRAME SIDEBAR - selalu fixed di kiri */
+        .sidebar-iframe {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 260px;
+            height: 100vh;
+            border: none;
+            z-index: 1000;
+        }
+        
+        /* MOBILE HEADER - hanya muncul di layar < 1024px */
+        .mobile-header {
+            display: none;
+        }
+        
+        @media (max-width: 1024px) {
+            .mobile-header {
+                display: flex;
+                position: sticky;
+                top: 0;
+                z-index: 20;
+                background: white;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                padding: 12px 16px;
+                align-items: center;
+                justify-content: space-between;
+            }
+            .mobile-menu-btn {
+                background: #f3f4f6;
+                padding: 8px 12px;
+                border-radius: 10px;
+                cursor: pointer;
+                border: none;
+            }
+            .mobile-menu-btn i {
+                color: #d97706;
+                font-size: 18px;
+            }
+        }
+        
+        /* Animasi blink untuk icon */
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        
+        .blink-icon {
+            animation: blink 1.5s infinite;
+        }
+        
+        /* Hover efek untuk tombol hubungi */
+        .contact-link {
+            transition: all 0.3s ease;
+        }
+        .contact-link:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+
+<!-- SIDEBAR IFRAME -->
+<iframe src="sidebar.html" class="sidebar-iframe" id="sidebarIframe"></iframe>
+
+<!-- MAIN CONTENT -->
+<main class="main-content">
+    
+    <!-- MOBILE HEADER (hanya muncul di mobile/tablet) -->
+    <div class="mobile-header">
+        <button class="mobile-menu-btn" id="mobileMenuBtn">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+        <div class="flex items-center gap-2">
+            <i class="fa-solid fa-microchip text-amber-600 text-lg"></i>
+            <span class="font-semibold text-gray-700 text-sm">IoT Kandang</span>
+        </div>
+        <div class="w-8"></div>
+    </div>
+    
+    <!-- KONTEN UTAMA - HALAMAN KOSONG (TIDAK ADA DATA) -->
+    <div class="flex items-center justify-center min-h-[calc(100vh-80px)] p-6">
+        <div class="text-center max-w-md">
+            
+            <!-- Icon peringatan dengan animasi -->
+            <div class="relative">
+                <img src="./img/1779632287195.png" alt="https://www.magnific.com/idn/vektor-gratis/sebuah-adegan-terpencil-dengan-sekelompok-ayam-dalam-gaya-kartun_24079713.htm">
+            </div>
+            
+            <!-- Judul -->
+            <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-3">
+                ⚠️ Data Tidak Terkirim
+            </h1>
+            
+            <!-- Kotak saran -->
+            <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6 text-left">
+                <p class="text-xs font-semibold text-amber-700 mb-2">
+                    <i class="fa-solid fa-lightbulb mr-1"></i> Saran Perbaikan:
+                </p>
+                <ul class="text-xs text-gray-600 space-y-1.5">
+                    <li class="flex items-start gap-2">
+                        <i class="fa-solid fa-plug text-amber-500 mt-0.5"></i>
+                        <span>Periksa kabel power dan pastikan mikrokontroler menyala</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fa-solid fa-wifi text-amber-500 mt-0.5"></i>
+                        <span>Cek koneksi internet / sinyal modem</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fa-solid fa-arrows-rotate text-amber-500 mt-0.5"></i>
+                        <span>Restart ulang perangkat mikrokontroler</span>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Tombol Hubungi Kami -->
+            <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                <a href="mailto:support@iotkandang.com?subject=Masalah%20Data%20Tidak%20Terkirim" 
+                   class="contact-link inline-flex items-center justify-center gap-2 bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-6 rounded-xl transition-all shadow-md">
+                    <i class="fa-solid fa-envelope text-lg"></i>
+                    <span>Hubungi via Email</span>
+                </a>
+            </div>
+            
+            <!-- Info tambahan -->
+            <p class="text-xs text-gray-400 mt-6">
+                <i class="fa-solid fa-clock"></i> Jika masalah berlanjut, silakan hubungi tim teknis kami
+            </p>
+            
+        </div>
+    </div>
+</main>
+
+<script>
+    const sidebarIframe = document.getElementById('sidebarIframe');
+    
+    function sendToSidebar(type, data = {}) {
+        if (sidebarIframe?.contentWindow) {
+            sidebarIframe.contentWindow.postMessage({ type, ...data }, '*');
+        }
+    }
+    
+    // Tombol menu mobile untuk toggle sidebar
+    document.getElementById('mobileMenuBtn')?.addEventListener('click', () => {
+        sendToSidebar('toggleSidebar');
+    });
+    
+    // Mendengarkan pesan dari sidebar untuk navigasi
+    window.addEventListener('message', (event) => {
+        const data = event.data;
+        if (data?.type === 'navigate') {
+            if (data.page === 'welcome') window.location.href = 'dashboard.html';
+            if (data.page === 'suhu') window.location.href = 'suhu.html';
+            if (data.page === 'pakan') window.location.href = 'pakan.html';
+        }
+        if (data?.type === 'logout') {
+            if (confirm('Yakin ingin keluar?')) {
+                window.location.href = 'login.html';
+            }
+        }
+    });
+    
+    // Set active menu di sidebar (opsional, tapi biar konsisten)
+    sendToSidebar('setActive', { page: 'welcome' });
+    
+    // Cek koneksi internet (opsional)
+    function checkConnection() {
+        if (!navigator.onLine) {
+            const container = document.querySelector('.text-center');
+            if (container && !document.getElementById('offlineWarning')) {
+                const warning = document.createElement('div');
+                warning.id = 'offlineWarning';
+                warning.className = 'mt-4 p-3 bg-red-50 border border-red-200 rounded-lg';
+                warning.innerHTML = '<p class="text-xs text-red-600"><i class="fa-solid fa-wifi-slash mr-1"></i> Anda sedang offline. Periksa koneksi internet Anda.</p>';
+                container.appendChild(warning);
+            }
+        }
+    }
+    
+    checkConnection();
+    window.addEventListener('online', () => {
+        const warning = document.getElementById('offlineWarning');
+        if (warning) warning.remove();
+    });
+    window.addEventListener('offline', checkConnection);
+</script>
+</body>
+</html>

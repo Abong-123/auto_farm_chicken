@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Beranda - IoT Kandang Cerdas</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .main-content {
+            margin-left: 260px;
+            min-height: 100vh;
+            transition: margin-left 0.3s ease;
+        }
+        
+        @media (max-width: 1024px) {
+            .main-content {
+                margin-left: 0;
+            }
+        }
+        
+        .sidebar-iframe {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 260px;
+            height: 100vh;
+            border: none;
+            z-index: 1000;
+        }
+        
+        .mobile-header {
+            display: none;
+        }
+        
+        @media (max-width: 1024px) {
+            .mobile-header {
+                display: flex;
+                position: sticky;
+                top: 0;
+                z-index: 20;
+                background: white;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                padding: 12px 16px;
+                align-items: center;
+                justify-content: space-between;
+            }
+            .mobile-menu-btn {
+                background: #f3f4f6;
+                padding: 8px 12px;
+                border-radius: 10px;
+                cursor: pointer;
+                border: none;
+            }
+            .mobile-menu-btn i {
+                color: #d97706;
+                font-size: 18px;
+            }
+        }
+        
+        .guide-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .guide-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.15);
+        }
+        
+        .modal-content {
+            animation: modalFadeIn 0.3s ease;
+        }
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        .sub-guide-item:hover {
+            background-color: #fef3c7;
+            transform: translateX(5px);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+
+<iframe src="sidebar.html" class="sidebar-iframe" id="sidebarIframe"></iframe>
+
+<main class="main-content">
+    
+    <div class="mobile-header">
+        <button class="mobile-menu-btn" id="mobileMenuBtn">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+        <div class="flex items-center gap-2">
+            <i class="fa-solid fa-microchip text-amber-600 text-lg"></i>
+            <span class="font-semibold text-gray-700 text-sm">IoT Kandang</span>
+        </div>
+        <div class="w-8"></div>
+    </div>
+    
+    <div class="p-4 sm:p-6 md:p-8">
+        
+        <!-- Sapaan -->
+        <div class="bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl p-6 mb-8 border border-amber-100">
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center">
+                    <i class="fa-solid fa-hand-peace text-amber-600 text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-bold text-gray-800">Halo, <span id="userName">Peternak</span> 👋</h1>
+                    <p class="text-gray-500 text-sm">Selamat datang di IoT Kandang Cerdas. Kelola kandang ayam Anda dengan mudah!</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Search Bar -->
+        <div class="mb-8">
+            <div class="relative">
+                <i class="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                <input type="text" id="searchGuide" placeholder="Cari panduan cepat... (contoh: login, suhu, pakan)" 
+                       class="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 focus:border-amber-400 focus:ring-2 focus:ring-amber-200 outline-none text-sm">
+            </div>
+        </div>
+        
+        <!-- 3 Kartu Panduan -->
+        <h2 class="text-base font-semibold text-gray-700 mb-4 flex items-center gap-2">
+            <i class="fa-solid fa-book-open text-amber-600"></i>
+            <span>Panduan Pengguna</span>
+        </h2>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div class="guide-card bg-white rounded-xl shadow-md p-5 border border-gray-100 hover:border-amber-300" data-guide="login">
+                <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-3">
+                    <i class="fa-solid fa-right-to-bracket text-blue-600 text-xl"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-800 mb-2">Login & Akun</h3>
+                <p class="text-gray-500 text-xs mb-3">Panduan mengakses aplikasi</p>
+                <div class="flex flex-wrap gap-1">
+                    <span class="text-[10px] bg-gray-100 px-2 py-0.5 rounded-full">Cara Login</span>
+                    <span class="text-[10px] bg-gray-100 px-2 py-0.5 rounded-full">Lupa Password</span>
+                    <span class="text-[10px] bg-gray-100 px-2 py-0.5 rounded-full">Buat Akun</span>
+                </div>
+            </div>
+            
+            <div class="guide-card bg-white rounded-xl shadow-md p-5 border border-gray-100 hover:border-amber-300" data-guide="suhu">
+                <div class="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center mb-3">
+                    <i class="fa-solid fa-temperature-high text-orange-600 text-xl"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-800 mb-2">Pengaturan Suhu</h3>
+                <p class="text-gray-500 text-xs mb-3">Suhu ideal untuk ayam</p>
+                <div class="flex flex-wrap gap-1">
+                    <span class="text-[10px] bg-gray-100 px-2 py-0.5 rounded-full">Sesuai Jenis</span>
+                    <span class="text-[10px] bg-gray-100 px-2 py-0.5 rounded-full">Sesuai Usia</span>
+                    <span class="text-[10px] bg-gray-100 px-2 py-0.5 rounded-full">Atur Usia</span>
+                </div>
+            </div>
+            
+            <div class="guide-card bg-white rounded-xl shadow-md p-5 border border-gray-100 hover:border-amber-300" data-guide="pakan">
+                <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mb-3">
+                    <i class="fa-solid fa-bowl-food text-green-600 text-xl"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-800 mb-2">Pemberian Pakan</h3>
+                <p class="text-gray-500 text-xs mb-3">Takaran & jadwal pakan</p>
+                <div class="flex flex-wrap gap-1">
+                    <span class="text-[10px] bg-gray-100 px-2 py-0.5 rounded-full">Takaran</span>
+                    <span class="text-[10px] bg-gray-100 px-2 py-0.5 rounded-full">Waktu Pakan</span>
+                    <span class="text-[10px] bg-gray-100 px-2 py-0.5 rounded-full">Jenis Pakan</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tips -->
+        <div class="mt-8 p-4 bg-amber-50 rounded-xl border border-amber-200">
+            <div class="flex items-start gap-3">
+                <i class="fa-solid fa-lightbulb text-amber-500 text-lg"></i>
+                <div>
+                    <p class="text-xs font-semibold text-amber-700">💡 Tips Hari Ini</p>
+                    <p class="text-xs text-gray-600">Pastikan suhu kandang stabil 30-33°C untuk DOC usia 1-2 minggu.</p>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+</main>
+
+<!-- Modal Panduan -->
+<div id="guideModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="background: rgba(0,0,0,0.5); backdrop-filter: blur(3px);" onclick="closeGuideModal(event)">
+    <div class="modal-content bg-white rounded-2xl max-w-md w-full max-h-[85vh] overflow-hidden shadow-2xl" onclick="event.stopPropagation()">
+        <div class="sticky top-0 bg-white border-b p-4 flex justify-between items-center">
+            <h3 class="font-bold text-gray-800" id="modalTitle">Panduan</h3>
+            <button onclick="closeGuideModal()" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-times text-xl"></i></button>
+        </div>
+        <div class="overflow-y-auto p-4" id="modalContent"></div>
+    </div>
+</div>
+
+<script>
+    const sidebarIframe = document.getElementById('sidebarIframe');
+    
+    function sendToSidebar(type, data = {}) {
+        if (sidebarIframe?.contentWindow) {
+            sidebarIframe.contentWindow.postMessage({ type, ...data }, '*');
+        }
+    }
+    
+    document.getElementById('mobileMenuBtn')?.addEventListener('click', () => sendToSidebar('toggleSidebar'));
+    
+    window.addEventListener('message', (event) => {
+        const data = event.data;
+        if (data?.type === 'navigate') {
+            if (data.page === 'suhu') window.location.href = 'suhu.html';
+            if (data.page === 'pakan') window.location.href = 'pakan.html';
+            if (data.page === 'welcome') window.location.href = 'dashboard.html';
+        }
+        if (data?.type === 'logout') {
+            if (confirm('Yakin ingin keluar?')) window.location.href = 'login.html';
+        }
+    });
+    
+    sendToSidebar('setActive', { page: 'welcome' });
+    
+    // Modal Panduan
+    const guideContent = {
+        login: { title: '🔐 Panduan Login', items: ['📝 Cara Login: Masukkan email & password', '🔑 Lupa Password: Klik "Lupa Password?"', '👤 Daftar: Isi data dan verifikasi', '❌ Kehilangan Akun: Hubungi admin'] },
+        suhu: { title: '🌡️ Panduan Suhu', items: ['🐔 Jenis Ayam: Broiler 28-33°C, Layer 27-30°C,  Kampung 26-35°C', '📅 Usia Ayam: DOC 32-34°C, Brooding 31-35°C, Grower 28-35°C', '⚙️ Atur Usia: Pilih fase di menu Suhu'] },
+        pakan: { title: '🍽️ Panduan Pakan', items: ['⚖️ Takaran: Petelur 40-60gram, Pedaging 80-120gram', '⏰ Jadwal: Pagi, Siang, Sore', '🍚 Jenis: Mash, Crumble, Pellet'] }
+    };
+    
+    function openGuideModal(topic) {
+        const data = guideContent[topic];
+        if (!data) return;
+        document.getElementById('modalTitle').innerHTML = data.title;
+        let html = '<div class="space-y-3">';
+        data.items.forEach((item, i) => {
+            html += `<div class="border rounded-xl"><button onclick="toggleItem(${i})" class="w-full text-left p-3 bg-gray-50 flex justify-between"><span class="text-sm">${item.substring(0, 40)}...</span><i id="icon${i}" class="fa-solid fa-chevron-down"></i></button><div id="item${i}" class="hidden p-3 text-xs border-t">${item}</div></div>`;
+        });
+        html += '</div>';
+        document.getElementById('modalContent').innerHTML = html;
+        document.getElementById('guideModal').classList.remove('hidden');
+        document.getElementById('guideModal').classList.add('flex');
+    }
+    
+    window.toggleItem = function(i) {
+        const el = document.getElementById(`item${i}`);
+        const icon = document.getElementById(`icon${i}`);
+        if (el.classList.contains('hidden')) {
+            el.classList.remove('hidden');
+            icon.style.transform = 'rotate(180deg)';
+        } else {
+            el.classList.add('hidden');
+            icon.style.transform = 'rotate(0deg)';
+        }
+    };
+    
+    function closeGuideModal(e) { if (e && e.target !== e.currentTarget) return; document.getElementById('guideModal').classList.add('hidden'); }
+    
+    document.querySelectorAll('.guide-card').forEach(card => {
+        card.addEventListener('click', () => openGuideModal(card.getAttribute('data-guide')));
+    });
+    
+    document.getElementById('searchGuide')?.addEventListener('input', (e) => {
+        const keyword = e.target.value.toLowerCase();
+        document.querySelectorAll('.guide-card').forEach(card => {
+            card.style.display = card.innerText.toLowerCase().includes(keyword) ? '' : 'none';
+        });
+    });
+    
+    document.getElementById('userName').innerText = localStorage.getItem('userName') || 'Peternak';
+</script>
+</body>
+</html>

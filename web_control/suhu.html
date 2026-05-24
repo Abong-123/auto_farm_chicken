@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Suhu Kandang - IoT Kandang Cerdas</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        * { font-family: 'Poppins', sans-serif; }
+        
+        .main-content { margin-left: 260px; min-height: 100vh; transition: margin-left 0.3s ease; }
+        @media (max-width: 1024px) { .main-content { margin-left: 0; } }
+        
+        .sidebar-iframe { position: fixed; top: 0; left: 0; width: 260px; height: 100vh; border: none; z-index: 1000; }
+        
+        .mobile-header { display: none; }
+        @media (max-width: 1024px) {
+            .mobile-header { display: flex; position: sticky; top: 0; z-index: 20; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 12px 16px; align-items: center; justify-content: space-between; }
+            .mobile-menu-btn { background: #f3f4f6; padding: 8px 12px; border-radius: 10px; cursor: pointer; border: none; }
+            .mobile-menu-btn i { color: #d97706; font-size: 18px; }
+        }
+        
+        .stat-card { transition: all 0.3s ease; }
+        .stat-card:hover { transform: translateY(-3px); box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.1); }
+        
+        .chart-container-custom { position: relative; width: 100%; aspect-ratio: 16 / 9; max-height: 400px; min-height: 280px; }
+        
+        .fase-btn.active { border-color: #d97706 !important; background-color: #fffbeb !important; }
+        .jenis-btn.active { background-color: #d97706 !important; color: white !important; border-color: #d97706 !important; }
+        
+        .confirm-btn { transition: all 0.3s ease; }
+        .confirm-btn:hover { transform: scale(1.02); box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3); }
+        
+        .kandang-tab { transition: all 0.2s ease; cursor: pointer; }
+        .kandang-tab.active { background-color: #d97706 !important; color: white !important; border-color: #d97706 !important; }
+        .kandang-tab:not(.active):hover { background-color: #fef3c7; border-color: #fcd34d; }
+    </style>
+</head>
+<body class="bg-gray-50">
+
+<iframe src="sidebar.html" class="sidebar-iframe" id="sidebarIframe"></iframe>
+
+<main class="main-content">
+    <div class="mobile-header">
+        <button class="mobile-menu-btn" id="mobileMenuBtn"><i class="fa-solid fa-bars"></i></button>
+        <div class="flex items-center gap-2"><i class="fa-solid fa-microchip text-amber-600 text-lg"></i><span class="font-semibold text-gray-700 text-sm">IoT Kandang</span></div>
+        <div class="w-8"></div>
+    </div>
+    
+    <div class="p-4 sm:p-6 md:p-8">
+        <div class="mb-6">
+            <h1 class="text-xl sm:text-2xl font-bold text-gray-800 flex items-center gap-2">
+                <i class="fa-solid fa-temperature-high text-amber-600"></i>
+                <span>Monitoring Suhu Kandang</span>
+            </h1>
+            <p class="text-gray-500 text-sm mt-1">Pantau suhu multiple kandang secara real-time</p>
+        </div>
+        
+        <!-- TAB KANDANG -->
+        <div class="bg-white rounded-xl shadow-md p-3 mb-6">
+            <div class="grid grid-cols-5 gap-2">
+                <button data-kandang="1" class="kandang-tab active bg-amber-500 text-white py-2 rounded-lg font-semibold text-sm border-2 border-amber-500 transition-all">
+                    <i class="fa-solid fa-house-chimney mr-1"></i> Kandang 1
+                </button>
+                <button data-kandang="2" class="kandang-tab bg-gray-100 text-gray-700 py-2 rounded-lg font-semibold text-sm border-2 border-gray-200 transition-all">
+                    <i class="fa-solid fa-house-chimney mr-1"></i> Kandang 2
+                </button>
+                <button data-kandang="3" class="kandang-tab bg-gray-100 text-gray-700 py-2 rounded-lg font-semibold text-sm border-2 border-gray-200 transition-all">
+                    <i class="fa-solid fa-house-chimney mr-1"></i> Kandang 3
+                </button>
+                <button data-kandang="4" class="kandang-tab bg-gray-100 text-gray-700 py-2 rounded-lg font-semibold text-sm border-2 border-gray-200 transition-all">
+                    <i class="fa-solid fa-house-chimney mr-1"></i> Kandang 4
+                </button>
+                <button data-kandang="5" class="kandang-tab bg-gray-100 text-gray-700 py-2 rounded-lg font-semibold text-sm border-2 border-gray-200 transition-all">
+                    <i class="fa-solid fa-house-chimney mr-1"></i> Kandang 5
+                </button>
+            </div>
+        </div>
+        
+        <!-- KONTEN DINAMIS -->
+        <div id="kandangContent"></div>
+        
+    </div>
+</main>
+
+<!-- Load JavaScript Terpisah -->
+<script src="suhu-data.js"></script>
+<script src="suhu-main.js"></script>
+
+</body>
+</html>

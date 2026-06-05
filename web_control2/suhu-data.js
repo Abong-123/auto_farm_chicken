@@ -19,21 +19,27 @@ const FASE_TARGET = {
         usiaText: 'DOC (0-7 hari)', 
         fase: 'DOC', 
         target: 33,        // tengah dari 32-34
-        range: '32-34' 
+        range: '32-34',
+        min: 32,
+        max: 34
     },
     brooding: { 
         usia: 15, 
         usiaText: 'Brooding (8-21 hari)', 
         fase: 'Brooding', 
         target: 30.5,      // tengah dari 29-32
-        range: '29-32' 
+        range: '29-32',
+        min: 29,
+        max: 32
     },
     grower: { 
         usia: 30, 
         usiaText: 'Grower (>21 hari)', 
         fase: 'Grower', 
         target: 27.5,      // tengah dari 26-29
-        range: '26-29' 
+        range: '26-29',
+        min: 26,
+        max: 29
     }
 };
 
@@ -61,13 +67,13 @@ function generateTimeLabels() {
 
 let jamLabels = generateTimeLabels();
 
-// Pengaturan aktif per kandang (jenis ayam & fase)
+// Pengaturan aktif per kandang (jenis ayam, fase, dan batas suhu)
 let kandangSettings = {
-    1: { jenis: 'broiler', fase: 'doc' },
-    2: { jenis: 'broiler', fase: 'brooding' },
-    3: { jenis: 'layer', fase: 'grower' },
-    4: { jenis: 'kampung', fase: 'doc' },
-    5: { jenis: 'broiler', fase: 'grower' }
+    1: { jenis: 'broiler', fase: 'doc', suhuMin: 32, suhuMax: 34 },
+    2: { jenis: 'broiler', fase: 'brooding', suhuMin: 29, suhuMax: 32 },
+    3: { jenis: 'layer', fase: 'grower', suhuMin: 26, suhuMax: 29 },
+    4: { jenis: 'kampung', fase: 'doc', suhuMin: 32, suhuMax: 34 },
+    5: { jenis: 'broiler', fase: 'grower', suhuMin: 26, suhuMax: 29 }
 };
 
 // ========== FUNGSI UNTUK MENGAMBIL DATA DARI MIKROKONTROLER ==========

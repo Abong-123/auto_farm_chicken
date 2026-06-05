@@ -27,10 +27,84 @@ function getRekomendasiText(fase, jenis) {
     return text;
 }
 
+function getAvailableKandangIds() {
+    const ids = new Set();
+    Object.keys(SuhuData.kandangSettings).forEach(id => ids.add(Number(id)));
+    Object.keys(SuhuData.kandangSuhuData).forEach(id => ids.add(Number(id)));
+    return Array.from(ids).filter(n => !Number.isNaN(n)).sort((a, b) => a - b);
+}
+
+function getEffectiveSuhuRange(settings) {
+    const fase = SuhuData.FASE_TARGET[settings.fase] || SuhuData.FASE_TARGET.doc;
+    const min = Number(settings.suhuMin ?? fase.min);
+    const max = Number(settings.suhuMax ?? fase.max);
+    const validMin = Math.min(min, max);
+    const validMax = Math.max(min, max);
+    const target = Math.round(((validMin + validMax) / 2) * 10) / 10;
+    return { min: validMin, max: validMax, target };
+}
+
+function getCurrentSettingsPayload() {
+    const settings = SuhuData.kandangSettings[currentKandang];
+    const suhuRange = getEffectiveSuhuRange(settings);
+    return {
+        kandang_id: currentKandang,
+        jenis: settings.jenis,
+        fase: settings.fase,
+        suhuMin: suhuRange.min,
+        suhuMax: suhuRange.max,
+        target: suhuRange.target,
+        timestamp: new Date().toISOString()
+    };
+}
+
+function showConfirmModal() {
+    const modal = document.getElementById('confirmModal');
+    const details = document.getElementById('confirmModalDetails');
+    const kandangLabel = document.getElementById('confirmModalKandang');
+    const payload = getCurrentSettingsPayload();
+    if (kandangLabel) kandangLabel.innerText = `Kandang ${payload.kandang_id}`;
+    if (details) details.innerText = `Jenis: ${payload.jenis}, Fase: ${payload.fase}, Min ${payload.suhuMin}°C, Max ${payload.suhuMax}°C, Target ${payload.target}°C`;
+    modal?.classList.remove('hidden');
+}
+
+function closeConfirmModal() {
+    document.getElementById('confirmModal')?.classList.add('hidden');
+}
+
+function publishMqttSettings(payload) {
+    // Ini stub hanya untuk UI. Nanti ganti dengan MQTT client / library WebSocket.
+    // Contoh topik: kandang/{id}/settings, payload JSON.
+    console.log('Publish MQTT payload:', payload);
+    return new Promise(resolve => setTimeout(resolve, 300));
+}
+
+function renderKandangTabs() {
+    const kandangIds = getAvailableKandangIds();
+    if (!kandangIds.length) return;
+    if (!kandangIds.includes(currentKandang)) {
+        currentKandang = kandangIds[0];
+    }
+
+    const tabsHtml = kandangIds.map(id => {
+        const isActive = id === currentKandang;
+        return `
+            <button data-kandang="${id}" class="kandang-tab ${isActive ? 'active bg-amber-500 text-white border-amber-500' : 'bg-gray-100 text-gray-700 border-gray-200'} py-2 rounded-lg font-semibold text-sm border-2 transition-all">
+                <i class="fa-solid fa-house-chimney mr-1"></i> Kandang ${id}
+            </button>
+        `;
+    }).join('');
+
+    const tabsContainer = document.getElementById('kandangTabs');
+    if (tabsContainer) tabsContainer.innerHTML = tabsHtml;
+}
+
 // ========== RENDER KONTEN KANDANG ==========
 function renderKandangContent() {
-    const settings = SuhuData.kandangSettings[currentKandang];
-    const targetTemp = calculateTargetTemp(settings.fase);
+    renderKandangTabs();
+    const settings = SuhuData.kandangSettings[currentKandang] || { jenis: 'broiler', fase: 'doc', suhuMin: 32, suhuMax: 34 };
+    const suhuRange = getEffectiveSuhuRange(settings);
+    const targetTemp = suhuRange.target;
     const range = SuhuData.JENIS_RANGE[settings.jenis];
     const fase = SuhuData.FASE_TARGET[settings.fase];
     const suhuHistory = SuhuData.kandangSuhuData[currentKandang] || SuhuData.kandangSuhuData[1];
@@ -62,7 +136,7 @@ function renderKandangContent() {
                 <div class="bg-blue-100 p-2 rounded-lg w-fit mb-2"><i class="fa-solid fa-bullseye text-blue-500"></i></div>
                 <p class="text-gray-500 text-xs">Suhu Target</p>
                 <p class="text-2xl font-bold"><span id="targetTemp">${targetTemp}</span>°C</p>
-                <p class="text-xs text-gray-400">Rentang: <span id="suhuRange">${fase.range}</span>°C (${range.nama})</p>
+                <p class="text-xs text-gray-400">Rentang: <span id="suhuRange">${suhuRange.min} - ${suhuRange.max}</span>°C (${range.nama})</p>
             </div>
             <div class="stat-card bg-white rounded-xl shadow-md p-4">
                 <div class="bg-green-100 p-2 rounded-lg w-fit mb-2"><i class="fa-solid fa-calendar-week text-green-500"></i></div>
@@ -97,6 +171,28 @@ function renderKandangContent() {
                     ${renderFaseButtons(settings.fase)}
                 </div>
             </div>
+
+            <div class="bg-white rounded-xl shadow-md p-5 mb-5">
+                <div class="mb-4">
+                    <p class="text-sm font-semibold text-gray-800">Pengaturan Suhu</p>
+                    <p class="text-xs text-gray-500">Atur batas bawah dan batas atas, target akan dihitung otomatis sebagai nilai tengah.</p>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                        <label class="text-xs font-semibold text-gray-600">Suhu Minimum</label>
+                        <input id="suhuMinInput" type="number" step="0.1" min="0" class="mt-2 w-full border border-gray-200 rounded-xl px-3 py-2 text-sm" value="${suhuRange.min}">
+                    </div>
+                    <div>
+                        <label class="text-xs font-semibold text-gray-600">Suhu Target</label>
+                        <input id="suhuTargetInput" type="number" step="0.1" class="mt-2 w-full border border-gray-200 rounded-xl px-3 py-2 text-sm bg-gray-50" value="${suhuRange.target}" disabled>
+                    </div>
+                    <div>
+                        <label class="text-xs font-semibold text-gray-600">Suhu Maksimum</label>
+                        <input id="suhuMaxInput" type="number" step="0.1" min="0" class="mt-2 w-full border border-gray-200 rounded-xl px-3 py-2 text-sm" value="${suhuRange.max}">
+                    </div>
+                </div>
+                <p class="text-xs text-gray-500 mt-3">Target dihitung sebagai nilai tengah dari batas bawah dan atas.</p>
+            </div>
             
             <div class="mt-5 pt-3 border-t border-gray-100">
                 <button id="confirmBtn" class="confirm-btn w-full bg-amber-500 hover:bg-amber-600 text-white font-semibold py-3 rounded-xl transition-all flex items-center justify-center gap-2">
@@ -125,32 +221,30 @@ function renderKandangContent() {
 
 function renderJenisButtons(activeJenis) {
     const jenisList = [
-        { id: 'broiler', nama: 'Broiler', icon: 'fa-drumstick-bite', range: '28-33°C' },
-        { id: 'layer', nama: 'Layer', icon: 'fa-egg', range: '27-30°C' },
-        { id: 'kampung', nama: 'Kampung', icon: 'fa-feather-alt', range: '26-35°C' }
+        { id: 'broiler', nama: 'Broiler', icon: 'fa-drumstick-bite' },
+        { id: 'layer', nama: 'Layer', icon: 'fa-egg' },
+        { id: 'kampung', nama: 'Kampung', icon: 'fa-feather-alt' }
     ];
     
     return jenisList.map(j => `
-        <button data-jenis="${j.id}" class="jenis-btn text-center p-2 rounded-lg transition-all ${activeJenis === j.id ? 'bg-amber-500 text-white border-amber-500' : 'bg-gray-100 border-gray-300 text-gray-700'} border-2">
-            <i class="fa-solid ${j.icon} text-sm"></i>
-            <p class="text-xs font-semibold mt-1">${j.nama}</p>
-            <p class="text-[9px] opacity-70">${j.range}</p>
+        <button data-jenis="${j.id}" class="jenis-btn text-center p-3 rounded-xl transition-all ${activeJenis === j.id ? 'bg-amber-500 text-white border-amber-500' : 'bg-gray-100 border-gray-300 text-gray-700'} border-2">
+            <i class="fa-solid ${j.icon} text-lg"></i>
+            <p class="text-sm font-semibold mt-2">${j.nama}</p>
         </button>
     `).join('');
 }
 
 function renderFaseButtons(activeFase) {
     const faseList = [
-        { id: 'doc', nama: 'DOC (0-7 hr)', icon: 'fa-egg', range: '32-34°C', color: 'text-green-600' },
-        { id: 'brooding', nama: 'Brooding (8-21 hr)', icon: 'fa-chick', range: '29-32°C', color: 'text-yellow-600' },
-        { id: 'grower', nama: 'Grower (>21 hr)', icon: 'fa-chicken', range: '26-29°C', color: 'text-orange-600' }
+        { id: 'doc', nama: 'DOC (0-7 hr)', icon: 'fa-egg', color: 'text-green-600' },
+        { id: 'brooding', nama: 'Brooding (8-21 hr)', icon: 'fa-chick', color: 'text-yellow-600' },
+        { id: 'grower', nama: 'Grower (>21 hr)', icon: 'fa-chicken', color: 'text-orange-600' }
     ];
     
     return faseList.map(f => `
         <button data-fase="${f.id}" class="fase-btn text-center p-3 rounded-xl transition-all ${activeFase === f.id ? 'bg-orange-50 border-amber-500 active' : 'bg-gray-50 border-gray-200'} border-2">
             <i class="fa-solid ${f.icon} ${f.color} text-lg block mb-1"></i>
             <p class="text-xs font-semibold">${f.nama}</p>
-            <p class="text-[10px] text-amber-600">${f.range}</p>
         </button>
     `).join('');
 }
@@ -187,7 +281,8 @@ function initChartForCurrentKandang(suhuHistory) {
 // ========== UPDATE DATA REAL-TIME ==========
 async function updateRealtimeDisplay() {
     const settings = SuhuData.kandangSettings[currentKandang];
-    const targetTemp = calculateTargetTemp(settings.fase);
+    const suhuRange = getEffectiveSuhuRange(settings);
+    const targetTemp = suhuRange.target;
     
     // Ambil data terbaru dari mikrokontroler
     const latestData = await SuhuData.fetchLatestSuhuFromMCU(currentKandang);
@@ -230,12 +325,7 @@ function attachEventListeners() {
             const jenis = btn.getAttribute('data-jenis');
             if (jenis) {
                 SuhuData.kandangSettings[currentKandang].jenis = jenis;
-                document.querySelectorAll('.jenis-btn').forEach(b => {
-                    b.classList.remove('bg-amber-500', 'text-white', 'border-amber-500');
-                    b.classList.add('bg-gray-100', 'text-gray-700', 'border-gray-300');
-                });
-                btn.classList.remove('bg-gray-100', 'text-gray-700', 'border-gray-300');
-                btn.classList.add('bg-amber-500', 'text-white', 'border-amber-500');
+                renderKandangContent();
             }
         });
     });
@@ -245,13 +335,12 @@ function attachEventListeners() {
         btn.addEventListener('click', () => {
             const fase = btn.getAttribute('data-fase');
             if (fase) {
-                SuhuData.kandangSettings[currentKandang].fase = fase;
-                document.querySelectorAll('.fase-btn').forEach(b => {
-                    b.classList.remove('border-amber-500', 'bg-orange-50', 'active');
-                    b.classList.add('border-gray-200', 'bg-gray-50');
-                });
-                btn.classList.remove('border-gray-200', 'bg-gray-50');
-                btn.classList.add('border-amber-500', 'bg-orange-50', 'active');
+                const settings = SuhuData.kandangSettings[currentKandang];
+                settings.fase = fase;
+                const faseConfig = SuhuData.FASE_TARGET[fase] || SuhuData.FASE_TARGET.doc;
+                settings.suhuMin = faseConfig.min;
+                settings.suhuMax = faseConfig.max;
+                renderKandangContent();
             }
         });
     });
@@ -259,17 +348,55 @@ function attachEventListeners() {
     // Tombol konfirmasi
     const confirmBtn = document.getElementById('confirmBtn');
     if (confirmBtn) {
-        confirmBtn.addEventListener('click', () => {
-            renderKandangContent();
-            confirmBtn.innerHTML = '<i class="fa-solid fa-check-circle"></i> <span>Berhasil Diterapkan!</span>';
-            setTimeout(() => {
-                if (document.getElementById('confirmBtn')) {
-                    document.getElementById('confirmBtn').innerHTML = `<i class="fa-solid fa-check-circle"></i> <span>OKE - Terapkan Pengaturan untuk Kandang ${currentKandang}</span>`;
-                }
-            }, 1500);
+        confirmBtn.addEventListener('click', (event) => {
+            event.preventDefault();
+            showConfirmModal();
         });
     }
+
+    const cancelBtn = document.getElementById('confirmModalCancel');
+    cancelBtn?.addEventListener('click', () => {
+        closeConfirmModal();
+    });
+
+    const confirmModalBtn = document.getElementById('confirmModalConfirm');
+    confirmModalBtn?.addEventListener('click', async () => {
+        const payload = getCurrentSettingsPayload();
+        confirmModalBtn.setAttribute('disabled', 'true');
+        confirmModalBtn.innerText = 'Mengirim...';
+        await publishMqttSettings(payload);
+        confirmModalBtn.removeAttribute('disabled');
+        confirmModalBtn.innerText = 'Kirim ke MCU';
+        closeConfirmModal();
+        alert(`Pengaturan kandang ${currentKandang} berhasil dikirim ke MCU.`);
+    });
+
+    const minInput = document.getElementById('suhuMinInput');
+    const maxInput = document.getElementById('suhuMaxInput');
+    const targetInput = document.getElementById('suhuTargetInput');
+
+    function updateRangeFromInputs() {
+        if (!minInput || !maxInput || !targetInput) return;
+        const minValue = parseFloat(minInput.value);
+        const maxValue = parseFloat(maxInput.value);
+        if (Number.isNaN(minValue) || Number.isNaN(maxValue)) return;
+        SuhuData.kandangSettings[currentKandang].suhuMin = minValue;
+        SuhuData.kandangSettings[currentKandang].suhuMax = maxValue;
+        const suhuRange = getEffectiveSuhuRange(SuhuData.kandangSettings[currentKandang]);
+        targetInput.value = suhuRange.target;
+        const targetSpan = document.getElementById('targetTemp');
+        const rangeSpan = document.getElementById('suhuRange');
+        if (targetSpan) targetSpan.innerText = suhuRange.target;
+        if (rangeSpan) rangeSpan.innerText = `${suhuRange.min} - ${suhuRange.max}`;
+    }
+
+    [minInput, maxInput].forEach(input => {
+        input?.addEventListener('input', () => {
+            updateRangeFromInputs();
+        });
+    });
 }
+
 
 // ========== NAVIGASI KANDANG ==========
 function switchKandang(kandangId) {

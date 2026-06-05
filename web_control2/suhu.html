@@ -64,23 +64,7 @@
         
         <!-- TAB KANDANG -->
         <div class="bg-white rounded-xl shadow-md p-3 mb-6">
-            <div class="grid grid-cols-5 gap-2">
-                <button data-kandang="1" class="kandang-tab active bg-amber-500 text-white py-2 rounded-lg font-semibold text-sm border-2 border-amber-500 transition-all">
-                    <i class="fa-solid fa-house-chimney mr-1"></i> Kandang 1
-                </button>
-                <button data-kandang="2" class="kandang-tab bg-gray-100 text-gray-700 py-2 rounded-lg font-semibold text-sm border-2 border-gray-200 transition-all">
-                    <i class="fa-solid fa-house-chimney mr-1"></i> Kandang 2
-                </button>
-                <button data-kandang="3" class="kandang-tab bg-gray-100 text-gray-700 py-2 rounded-lg font-semibold text-sm border-2 border-gray-200 transition-all">
-                    <i class="fa-solid fa-house-chimney mr-1"></i> Kandang 3
-                </button>
-                <button data-kandang="4" class="kandang-tab bg-gray-100 text-gray-700 py-2 rounded-lg font-semibold text-sm border-2 border-gray-200 transition-all">
-                    <i class="fa-solid fa-house-chimney mr-1"></i> Kandang 4
-                </button>
-                <button data-kandang="5" class="kandang-tab bg-gray-100 text-gray-700 py-2 rounded-lg font-semibold text-sm border-2 border-gray-200 transition-all">
-                    <i class="fa-solid fa-house-chimney mr-1"></i> Kandang 5
-                </button>
-            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2" id="kandangTabs"></div>
         </div>
         
         <!-- KONTEN DINAMIS -->
@@ -88,6 +72,27 @@
         
     </div>
 </main>
+
+<!-- Konfirmasi Pengiriman Setting -->
+<div id="confirmModal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/40 p-4 overflow-y-auto">
+    <div class="w-full max-w-lg rounded-3xl bg-white shadow-2xl overflow-hidden">
+        <div class="p-6">
+            <h2 class="text-lg font-semibold text-gray-800">Kirim pengaturan ke MCU?</h2>
+            <p class="text-sm text-gray-500 mt-2">Pengaturan suhu akan dikirim ke perangkat menggunakan protokol MQTT. Pastikan koneksi broker aktif.</p>
+            <div class="mt-5 grid gap-4">
+                <div class="rounded-2xl bg-gray-50 p-4 border border-gray-200">
+                    <p class="text-xs text-gray-500 uppercase tracking-wide">Kandang</p>
+                    <p class="text-base font-semibold text-gray-800" id="confirmModalKandang">-</p>
+                    <p class="text-xs text-gray-500 mt-1" id="confirmModalDetails">-</p>
+                </div>
+            </div>
+        </div>
+        <div class="flex items-center justify-end gap-3 border-t border-gray-100 bg-gray-50 px-6 py-4">
+            <button id="confirmModalCancel" class="rounded-xl border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Batal</button>
+            <button id="confirmModalConfirm" class="rounded-xl bg-amber-500 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-600">Kirim ke MCU</button>
+        </div>
+    </div>
+</div>
 
 <!-- Load JavaScript Terpisah -->
 <script src="suhu-data.js"></script>
